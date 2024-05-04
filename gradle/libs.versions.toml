@@ -1,0 +1,25 @@
+# versions #########################################################################################
+[versions]
+####################################################################################################
+gradle-plugin = "8.2.2"
+gradle-api = "8.2.2"
+gradle-kotlin-plugin = "1.9.22"
+gradle-kotlin-stdlib-jdk8 = "1.9.22"
+okhttp3 = "5.0.0-alpha.12"
+####################################################################################################
+
+# libraries ########################################################################################
+[libraries]
+####################################################################################################
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle-plugin" }
+gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "gradle-api" }
+gradle-kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "gradle-kotlin-plugin" }
+gradle-kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "gradle-kotlin-stdlib-jdk8" }
+okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3" }
+####################################################################################################
+
+## plugins #########################################################################################
+[plugins]
+####################################################################################################
+
+####################################################################################################
