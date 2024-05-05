@@ -5,12 +5,12 @@ import org.mjdev.gradle.base.Command
 import java.io.File
 
 @Suppress("unused")
-class Dpkg(task: BaseTask) : Command(task) {
-    fun createDeb(
-        fromDirectory: File,
-        outputFile: String
+class Git(task: BaseTask) : Command(task) {
+    fun clone(
+        url: String,
+        dir: File
     ) = run(
-        command = "dpkg-deb -Z gzip --root-owner-group --build $fromDirectory $outputFile",
+        command = "git clone $url ${dir.absolutePath}",
         needSudo = false,
         isImportant = false,
         printInfo = false

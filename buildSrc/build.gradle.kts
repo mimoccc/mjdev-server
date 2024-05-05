@@ -1,5 +1,3 @@
-import groovy.lang.Closure
-
 /*
  *  Copyright (c) Milan Jurkulák 2024.
  *  Contact:
@@ -16,7 +14,6 @@ repositories {
 
 plugins {
     `kotlin-dsl`
-    groovy
 }
 
 dependencies {
@@ -26,8 +23,6 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.gradle)
     implementation(libs.gradle.api)
-    implementation(libs.gradle.kotlin.plugin)
-    implementation(libs.gradle.kotlin.stdlib.jdk8)
     implementation(libs.okhttp3)
 }
 
@@ -39,12 +34,5 @@ gradlePlugin {
             description = ""
             implementationClass = "org.mjdev.gradle.plugin.ServerPlugin"
         }
-    }
-}
-
-kotlin {
-    val hostOs = System.getProperty("os.name")
-    if (hostOs.startsWith("linux")) {
-        throw (GradleException("This package is only for linux machines."))
     }
 }

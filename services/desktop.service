@@ -1,0 +1,6 @@
+enabled=false
+name=desktop
+port=8000
+type=node
+git=https://github.com/HeyPuter/puter.git
+host=destktop

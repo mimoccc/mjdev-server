@@ -13,10 +13,10 @@ open class Command(
         get() = task.project
 
     val rootDir
-        get()= task.rootDir
+        get() = task.rootDir
 
     val buildDir
-        get()= task.buildDir
+        get() = task.buildDir
 
     private val isSudo: Boolean
         get() {
@@ -118,4 +118,8 @@ open class Command(
             })
         }
     }
+
+    fun createString(block: () -> String): String =
+        task.createString(block)
+
 }

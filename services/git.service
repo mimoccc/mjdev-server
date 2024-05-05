@@ -1,0 +1,6 @@
+enabled=false
+name=git
+port=8001
+type=static
+git=https://github.com/gogs/gogs.git
+host=git

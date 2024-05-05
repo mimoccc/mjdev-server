@@ -2,7 +2,7 @@ package org.mjdev.gradle.tasks
 
 import org.mjdev.gradle.base.BaseTask
 
-open class CleanTask : BaseTask() {
+open class CleanProjectTask : BaseTask() {
 
     private val clearFiles = listOf(
         rootDir.resolve("build"),

@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskAction
 import org.mjdev.gradle.commands.AptGet
 import org.mjdev.gradle.commands.SysUtils
 import org.mjdev.gradle.commands.Dpkg
+import org.mjdev.gradle.commands.Git
 import java.io.File
 
 @Suppress("LeakingThis", "unused")
@@ -22,6 +23,9 @@ abstract class BaseTask : DefaultTask() {
 
     @get:Internal
     val dpkgCmd by lazy { Dpkg(this) }
+
+    @get:Internal
+    val gitCmd by lazy { Git(this) }
 
     @get:Internal
     val log

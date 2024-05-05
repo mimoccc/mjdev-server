@@ -38,10 +38,10 @@ open class CreateDebTask : BaseTask() {
     var packageDependencies = mutableListOf(
         "zip",
         "unzip",
+        "git",
         "fail2ban",
         "ufw",
         "certbot",
-        "nginx-full",
         "nodejs",
         "npm",
         "openjdk-17-jre",
@@ -121,7 +121,7 @@ open class CreateDebTask : BaseTask() {
     override fun init() {
         group = "mjdev"
         description = "Create deb file from root directory."
-        finalizedBy("clean")
+        finalizedBy("cleanProject")
     }
 
     override fun start() {
@@ -142,14 +142,13 @@ open class CreateDebTask : BaseTask() {
         sysCmd.chmod(postInstallFile, 755)
         dpkgCmd.createDeb(tempDebDirectory, outputFileName)
         sysCmd.chmod(outputFile, 666)
-
     }
 
     override fun finish() {
         try {
             tempDebDirectory.deleteRecursively()
         } catch (t: Throwable) {
-            print("Failed to delete temporry directory.")
+            print("Failed to delete temporary directory.")
         }
     }
 }

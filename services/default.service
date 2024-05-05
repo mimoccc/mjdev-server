@@ -1,0 +1,6 @@
+enabled=true
+name=default
+port=80
+host=*
+type=static
+git=
