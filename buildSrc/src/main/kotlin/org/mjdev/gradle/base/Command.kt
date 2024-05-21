@@ -1,125 +1,148 @@
 package org.mjdev.gradle.base
 
-import org.mjdev.gradle.exceptions.CommandException
-import org.mjdev.gradle.exceptions.FatalCommandException
+import org.gradle.api.Project
+import java.io.ByteArrayOutputStream
 import java.io.File
-import kotlin.jvm.Throws
 
-@Suppress("unused", "MemberVisibilityCanBePrivate", "FunctionName")
 open class Command(
     val task: BaseTask
 ) {
     val project
         get() = task.project
 
-    val rootDir
-        get() = task.rootDir
-
-    val buildDir
-        get() = task.buildDir
-
-    private val isSudo: Boolean
-        get() {
-            val user = System.getProperty("user.name")
-            return user == "root"
-        }
-
-    private val commandStack = mutableListOf<CommandStackEntry>()
-
-    fun run(
-        command: String,
-        needSudo: Boolean = false,
-        printInfo: Boolean = true,
-        isImportant: Boolean = true,
-        checkCommand: (c: String) -> Boolean = { c ->
-            runCatching { File(c).exists() }.getOrDefault(false)
-        },
-        onFailure: (e: CommandException) -> Unit = { e ->
-            if (e.isFatal && isImportant) {
-                task.printlnErr("Command failed: $command, ${e.message}")
-                throw (e)
-            } else {
-                task.println("Command failed: $command, ${e.message}")
-            }
-        },
-        onResult: (command: CommandStackEntry) -> Unit = { cmd ->
-            if (printInfo) {
-                val out = cmd.output.toString()
-                val err = cmd.errorOutput.toString()
-                task.println("Command result: $command")
-                if (out.isNotEmpty()) {
-                    task.println("Output: $out")
-                }
-                if (err.isNotEmpty()) {
-                    task.println("Error: $err")
-                }
-            }
-        }
-    ) {
-        var cmd = command
-        try {
-            if (printInfo) task.println("Running command: $command")
-            if (!checkCommand(cmd.split(" ").first())) {
-                cmd = "/usr/bin/$cmd"
-                if (!checkCommand(cmd.split(" ").first())) {
-                    cmd = "/usr/sbin/$cmd"
-                    if (!checkCommand(cmd.split(" ").first())) {
-                        throw (CommandException("Command not exists: $command"))
+    fun commands(scope: CommandScope.() -> Unit) {
+        val cmdScope = CommandScope(this)
+        scope(cmdScope)
+        with(cmdScope) {
+            path(rootDir)
+            path(buildDir)
+            allCommands.forEach { command ->
+                val commandOutput = ByteArrayOutputStream()
+                println("Executing command: ${command.command}")
+                println("Arguments: [${command.args.joinToString(", ")}]")
+                try {
+                    val pb = ProcessBuilder(mutableListOf(command.command).apply {
+                        addAll(command.args)
+                    })
+                    pb.directory(cmdScope.workingDir)
+                    pb.environment().putAll(cmdScope.environment.map { it.key to it.value.toString() })
+                    // todo
+//                    pb.redirectOutput(StreamRedirect(commandOutput))
+//                    pb.redirectErrorStream(true)
+                    val p = pb.start()
+                    if(!command.isDaemon) {
+                        p.waitFor()
                     }
+                    onResult(p.exitValue(), commandOutput.toString(), null)
+                } catch (e: Throwable) {
+                    onResult(-1, commandOutput.toString(), e)
                 }
             }
-            commandStack.add(CommandStackEntry(cmd, onFailure, needSudo))
-            val iterator = commandStack.iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                iterator.remove()
-                _run(entry, onResult)
-            }
-        } catch (t: Throwable) {
-            val e = if (t is CommandException) t
-            else CommandException(t)
-            onFailure(e)
         }
     }
 
-    @Throws(CommandException::class)
-    private fun _run(
-        command: CommandStackEntry,
-        onResult: (command: CommandStackEntry) -> Unit
+    class CommandScope(
+        private val cmd: Command,
+        val project: Project = cmd.project
     ) {
-        try {
-            if (command.needSudo) {
-                if (!isSudo) {
-                    throw (FatalCommandException("You need to be root to run this command"))
-                }
+        private val environments =
+            mutableMapOf<String, Any?>("PATH" to "\"\$PATH:/bin:/sbin:/usr/bin/:/usr/sbin:/usr/local/bin:/usr/local/sbin\"")
+        private val commands = mutableListOf<RunCommand>()
+
+        val rootDir
+            get() = project.rootDir
+
+        @Suppress("DEPRECATION")
+        val buildDir
+            get() = project.buildDir
+        val isSudo: Boolean
+            get() = System.getProperty("user.name") == "root"
+        val environment
+            get() = environments
+
+        val allCommands
+            get() = commands
+
+        var workingDir = project.rootDir
+//        var ignoreExitValue = false
+        var onResult: (code: Int, output: String, error: Throwable?) -> Unit = { c, o, e ->
+            println("Command exit value: $c")
+            println("Command output: $o")
+            if (e != null) {
+                println("Error: ${errorString(e)}")
             }
-            project.exec {
-                workingDir = project.rootDir
-                commandLine = listOf("sh", "-c", command.command)
-                isIgnoreExitValue = true
-                standardOutput = command.output
-                errorOutput = command.errorOutput
-            }.let { result ->
-                if (result.exitValue != 0) {
-                    throw (FatalCommandException(
-                        "Command failed: ${command.command}",
-                        CommandException(
-                            "Command exited with status code: ${result.exitValue}\n" +
-                                command.errorOutput.toString()
-                        )
-                    ))
-                }
-                onResult(command)
-            }
-        } catch (e: Exception) {
-            throw (when (e) {
-                is CommandException -> e
-                else -> CommandException(e)
-            })
         }
+
+        private fun errorString(e: Throwable): String = mutableListOf<String>().apply {
+            var ee: Throwable? = e
+            while (ee != null) {
+                add(ee.message ?: "Unknown error")
+                ee = ee.cause as? Exception
+            }
+        }.joinToString("\n").plus(".")
+
+        fun path(file: File) {
+            if (file.isDirectory) path(file.absolutePath)
+            else path(file.parentFile.absolutePath)
+        }
+
+        fun path(path: String) {
+            val oldPath = env("PATH")
+            if (oldPath.contains(path)) return
+            val newPath = if (oldPath.isNotEmpty()) {
+                "\"\$PATH:${oldPath.replace("\"\$PATH:", "").replace("\"", "")}:$path\""
+            } else {
+                "\"\$PATH:$path\""
+            }
+            env("PATH", newPath)
+        }
+
+        fun env(key: String, block: (String) -> Unit) {
+            block(environments[key]?.toString() ?: "")
+        }
+
+        fun env(key: String): String = environments[key]?.toString() ?: ""
+
+        fun env(key: String, value: String) {
+            environments[key] = value
+        }
+
+        fun run(command: String) {
+            this.commands.add(RunCommand(command, false))
+        }
+
+        fun run(command: String, isDaemon: Boolean = false) {
+            this.commands.add(RunCommand(command, isDaemon))
+        }
+
+        fun run(command: String, isDaemon: Boolean, vararg args: String) {
+            this.commands.add(RunCommand(command, isDaemon, args))
+        }
+
+        fun run(command: File, vararg args: String) =
+            run(command.absolutePath, false, *args)
+
+        fun run(command: File, isDaemon: Boolean = false, vararg args: String) =
+            run(command.absolutePath, isDaemon, *args)
+
+        fun sudo(command: String, isDaemon: Boolean = false) {
+            run(command.let { c -> "sudo $c" }, isDaemon)
+        }
+
     }
 
-    fun createString(block: () -> String): String =
-        task.createString(block)
+    class RunCommand(
+        val command: String,
+        val isDaemon: Boolean = false,
+        val args: Array<out String>
+    ) {
+        constructor(cmd: String, isDaemon: Boolean = false) : this(
+            cmd.split(" ").first(),
+            isDaemon,
+            cmd.split(" ")
+                .toMutableList().apply { removeAt(0) }
+                .toTypedArray()
+        )
+    }
 
 }

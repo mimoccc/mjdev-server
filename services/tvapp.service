@@ -1,0 +1,13 @@
+name=tvapp
+type=android
+enabled=false
+host=*
+port=*
+keep=false
+git=git@github.com:mimoccc/tvapp.git
+isSSL=false
+dependencies=
+config=
+customScript=
+start=
+stop=

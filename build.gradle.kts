@@ -12,6 +12,16 @@ server {
     servicesDir = "services"
 }
 
+tasks.withType<JavaCompile> {
+    sourceCompatibility = JavaVersion.VERSION_17.toString()
+    targetCompatibility = JavaVersion.VERSION_17.toString()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    @Suppress("DEPRECATION")
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+}
+
 buildscript {
     repositories {
         mavenCentral()

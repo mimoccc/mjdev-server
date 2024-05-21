@@ -9,10 +9,7 @@ class Git(task: BaseTask) : Command(task) {
     fun clone(
         url: String,
         dir: File
-    ) = run(
-        command = "git clone $url ${dir.absolutePath}",
-        needSudo = false,
-        isImportant = false,
-        printInfo = false
-    )
+    ) = commands {
+        run("git clone $url ${dir.absolutePath}")
+    }
 }

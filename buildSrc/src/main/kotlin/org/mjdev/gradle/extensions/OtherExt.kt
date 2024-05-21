@@ -54,4 +54,18 @@ object  OtherExt {
         is Number -> value.toDouble()
         else -> null
     }
+
+    fun <K, V> Map<K, V>.mapToString(
+        separator: String = ": ",
+        quoteFirst: Boolean = true,
+        quoteSecond: Boolean = true,
+        prefix: String = "\t",
+        suffix: String = ",",
+    ): String = map { kv ->
+        val sdKey = kv.key.toString().replace("\"", "")
+        val sdValue = kv.value.toString().replace("\"", "")
+        val qf = if (quoteFirst) "\"" else ""
+        val qs = if (quoteSecond) "\"" else ""
+        "$prefix$qf$sdKey$qf$separator$qs$sdValue$qs"
+    }.joinToString("$suffix\n") + "\n"
 }

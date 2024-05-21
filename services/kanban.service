@@ -1,10 +1,10 @@
-name=desktop
+name=kanban
 type=node
 enabled=false
 host=localhost
 port=4100
 keep=false
-git=https://github.com/HeyPuter/puter.git
+git=https://github.com/ritik2358/Kanban-board.git
 isSSL=false
 dependencies=
 config=

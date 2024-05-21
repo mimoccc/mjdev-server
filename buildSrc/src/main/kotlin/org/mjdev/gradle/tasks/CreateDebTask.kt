@@ -42,8 +42,8 @@ open class CreateDebTask : BaseTask() {
         "fail2ban",
         "ufw",
         "certbot",
-        "nodejs",
-        "npm",
+//        "nodejs",
+//        "npm",
         "openjdk-17-jre",
         "openjdk-17-jdk",
         "gradle",
@@ -74,7 +74,7 @@ open class CreateDebTask : BaseTask() {
                 "Depends: $packageDependenciesString\n" +
                 "Maintainer: $packageMaintainer\n" +
                 "Description: $packageDescription\n" +
-                " " +packageFullDescription + "\n" +
+                " " + packageFullDescription + "\n" +
                 "Homepage: https://mjdev.org\n" +
                 "Package-Type: deb\n"
         }
@@ -86,7 +86,8 @@ open class CreateDebTask : BaseTask() {
         rootDir.resolve("build").absolutePath,
         rootDir.resolve("buildSrc").resolve(".gradle").absolutePath,
         rootDir.resolve("buildSrc").resolve("build").absolutePath,
-        rootDir.resolve("local.properties").absolutePath
+        rootDir.resolve("local.properties").absolutePath,
+        rootDir.resolve("gradle").resolve("nodejs").absolutePath
     )
     private val packageDir = tempDebDirectory.resolve("mjdev")
     private val installFile = packageDir.resolve("install.sh")
@@ -142,13 +143,9 @@ open class CreateDebTask : BaseTask() {
         sysCmd.chmod(postInstallFile, 755)
         dpkgCmd.createDeb(tempDebDirectory, outputFileName)
         sysCmd.chmod(outputFile, 666)
+        tempDebDirectory.deleteRecursively()
     }
 
     override fun finish() {
-        try {
-            tempDebDirectory.deleteRecursively()
-        } catch (t: Throwable) {
-            print("Failed to delete temporary directory.")
-        }
     }
 }

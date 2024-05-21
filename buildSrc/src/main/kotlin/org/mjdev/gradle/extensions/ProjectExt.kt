@@ -1,11 +1,13 @@
 package org.mjdev.gradle.extensions
 
 import org.gradle.accessors.dm.LibrariesForLibs
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.provider.Provider
+import org.gradle.internal.impldep.jakarta.xml.bind.DatatypeConverter
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
@@ -17,6 +19,15 @@ import org.mjdev.gradle.extensions.OtherExt.cast
 
 @Suppress("HasPlatformType", "unused", "MemberVisibilityCanBePrivate")
 object ProjectExt {
+
+    val Project.androidStudioVersion
+        get() = project.extra.properties["android.studio.version"]
+
+    val Project.runningFromAndroidStudio
+        get() = DatatypeConverter.parseBoolean(project.extra.properties["android.injected.invoked.from.ide"].toString())
+
+    val Project.isAndroidStudio
+        get() = project.extra.properties.keys.contains("android.studio.version")
 
     val Project.libs
         get() = the<LibrariesForLibs>()
@@ -34,6 +45,11 @@ object ProjectExt {
             config(this)
         } as T
     }
+
+    fun <T> Project.extension(cls: Class<T>): T =
+        rootProject.extensions.findByType(cls)
+            ?: project.extensions.findByType(cls)
+            ?: throw (GradleException("Extension not configured : ${cls.simpleName}"))
 
     inline fun <reified T> Project.fromBuildPropertiesFile(
         config: T,
@@ -118,9 +134,12 @@ object ProjectExt {
         return task
     }
 
+    fun Project.cleanTask(
+        scoped: Task.() -> Unit = {}
+    ) : Task = task<Task>("clean", scoped)
+
     fun Project.apply(plugin: Provider<*>) =
         project.plugins.apply(plugin.get().toString())
-
 
     fun Project.apply(plugin: String) =
         project.plugins.apply(plugin)
@@ -131,5 +150,4 @@ object ProjectExt {
 
     inline fun <reified T : Plugin<Project>> Project.apply() =
         project.plugins.apply(T::class.java)
-
 }

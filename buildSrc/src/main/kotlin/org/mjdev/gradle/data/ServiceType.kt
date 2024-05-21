@@ -1,11 +1,15 @@
+@file:Suppress("CustomizableKDocMissingDocumentation", "PackageDirectoryMismatch")
 package org.mjdev.gradle.data
 
 enum class ServiceType(
-    val type:String
+    val type: String
 ) {
-    NODE_JS("nodejs"),
+    STATIC("static"),
+    PROXY("proxy"),
+    CUSTOM("custom"),
+    NODE_JS("node"),
     KTS("kts"),
-    STATIC("static");
+    ANDROID("android");
 
     companion object {
         operator fun invoke(value: String) = values().firstOrNull { it.type == value } ?: STATIC

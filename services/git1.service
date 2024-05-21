@@ -1,10 +1,10 @@
-name=desktop
+name=git
 type=node
 enabled=false
 host=localhost
-port=4100
+port=8003
 keep=false
-git=https://github.com/HeyPuter/puter.git
+git=https://github.com/HampusMat/Githermit.git
 isSSL=false
 dependencies=
 config=

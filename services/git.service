@@ -1,6 +1,13 @@
-enabled=false
 name=git
+type=custom
+enabled=false
+host=localhost
 port=8001
-type=static
+keep=false
 git=https://github.com/gogs/gogs.git
-host=git
+isSSL=false
+dependencies=golang
+config=
+customScript=
+start=
+stop=

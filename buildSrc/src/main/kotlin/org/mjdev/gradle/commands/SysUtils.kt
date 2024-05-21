@@ -5,8 +5,9 @@ import okhttp3.Request
 import org.mjdev.gradle.base.BaseTask
 import org.mjdev.gradle.base.Command
 import java.io.File
+import java.util.concurrent.TimeUnit
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
+@Suppress("unused", "MemberVisibilityCanBePrivate", "UNUSED_PARAMETER")
 class SysUtils(task: BaseTask) : Command(task) {
 
     val kotlinCompiler = "/opt/kotlinc/bin/kotlinc"
@@ -14,15 +15,15 @@ class SysUtils(task: BaseTask) : Command(task) {
 
     fun rm(
         what: String,
-        needSudo: Boolean = true,
-        isImportant: Boolean = false,
-        printInfo: Boolean = false
-    ) = run(
-        command = "rm -rf $what",
-        needSudo = needSudo,
-        isImportant = isImportant,
-        printInfo = printInfo
-    )
+    ) = commands {
+        run("rm -rf $what")
+    }
+
+    fun rm(
+        what: File,
+    ) = commands {
+        run("rm -rf ${what.absolutePath}")
+    }
 
     fun download(url: String, dirPath: String) {
         download(url, File(dirPath))
@@ -34,11 +35,13 @@ class SysUtils(task: BaseTask) : Command(task) {
         } else {
             file.parentFile.mkdirs()
         }
-        OkHttpClient().newCall(Request.Builder().url(url).build()).execute().use { response ->
-            file.outputStream().use {
-                it.write(response.body.bytes())
+        OkHttpClient.Builder()
+            .callTimeout(10, TimeUnit.MINUTES)
+            .build().newCall(Request.Builder().url(url).build()).execute().use { response ->
+                file.outputStream().use {
+                    it.write(response.body.bytes())
+                }
             }
-        }
     }
 
     fun unzip(
@@ -71,12 +74,9 @@ class SysUtils(task: BaseTask) : Command(task) {
         needSudo: Boolean = true,
         isImportant: Boolean = true,
         printInfo: Boolean = false
-    ) = run(
-        command = "unzip ${file.absolutePath} -d ${dir.absolutePath}",
-        needSudo = needSudo,
-        isImportant = isImportant,
-        printInfo = printInfo
-    )
+    ) = commands {
+        run("/sbin/unzip ${file.absolutePath} -d ${dir.absolutePath}")
+    }
 
     fun createFile(filePath: String, what: () -> String) {
         createFile(File(filePath), what)
@@ -94,37 +94,9 @@ class SysUtils(task: BaseTask) : Command(task) {
         file: File,
         isImportant: Boolean = true,
         printInfo: Boolean = false
-    ) = run(
-        command = "chmod a+x ${file.absolutePath}",
-        needSudo = true,
-        isImportant = isImportant,
-        printInfo = printInfo
-    )
-
-//    fun ktxCompile(testKtxFile: File, outFile: File) = run(
-//        command = "$kotlinCompiler ${testKtxFile.absolutePath} -include-runtime -d ${outFile.absolutePath}",
-//        needSudo = true,
-//        isImportant = false,
-//        printInfo = false
-//    )
-
-//    fun startJava(jarFile: File) = run(
-//        command = "java -jar ${jarFile.absolutePath}",
-//        needSudo = true,
-//        isImportant = false,
-//        printInfo = false
-//    )
-
-    @Suppress("UNUSED_PARAMETER")
-    fun ktx(
-        ktxFile: File,
-        onOutput: () -> Unit = {}
-    ) = run(
-        command = "$kotlinRunner ${ktxFile.absolutePath}",
-        needSudo = false,
-        isImportant = false,
-        printInfo = true
-    )
+    ) = commands {
+        sudo("chmod a+x ${file.absolutePath}")
+    }
 
     fun chmod(
         filePath: String,
@@ -138,19 +110,22 @@ class SysUtils(task: BaseTask) : Command(task) {
         mode: Int,
         isImportant: Boolean = true,
         printInfo: Boolean = false
-    ) = run(
-        command = if (file.isDirectory) "chmod -R $mode ${file.absolutePath}"
-        else "chmod $mode ${file.absolutePath}",
-        needSudo = true,
-        isImportant = isImportant,
-        printInfo = printInfo
-    )
+    ) = commands {
+        sudo(
+            if (file.isDirectory) "chmod -R $mode ${file.absolutePath}"
+            else "chmod $mode ${file.absolutePath}"
+        )
+    }
 
-    fun sh(block: () -> String) = run(
-        command = block(),
-        needSudo = true,
-        isImportant = true,
-        printInfo = true
-    )
+    fun sh(block: () -> String) = commands {
+        run("sh -c ${block()}")
+    }
+
+    fun untar(
+        file: File,
+        dir: File,
+    ) = commands {
+        run("tar -xvf ${file.absolutePath} -C ${dir.absolutePath}")
+    }
 
 }

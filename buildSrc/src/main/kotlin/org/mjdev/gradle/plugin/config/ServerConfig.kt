@@ -1,13 +1,15 @@
 package org.mjdev.gradle.plugin.config
 
-open class ServerConfig {
+open class ServerConfig : IConfig {
+    open var applicationName: String = "mjdev-server"
     open var mainClassName: String = "org.mjdev.server.MainKt"
     open var servicesDir: String = "services"
 
-//    override fun toMap(): Map<*, *> = toHashMap()
+
+    override fun toMap(): Map<*, *> = toHashMap<ServerConfig>()
 
     companion object {
-        val configName = "server"
-        val configPropertiesFile = "server.prop"
+        const val configName = "server"
+        const val configPropertiesFile = "server.prop"
     }
 }
