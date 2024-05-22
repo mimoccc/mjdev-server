@@ -8,6 +8,9 @@ okhttp3 = "5.0.0-alpha.12"
 ktor = "2.3.10"
 logback-classic = "1.5.6"
 kotlin_css_version = "1.0.0-pre.739"
+okhttp = "1.3.2-1.4-M2"
+acme4j = "2.16"
+rhino = "1.5R4.1"
 ####################################################################################################
 
 # libraries ########################################################################################
@@ -20,13 +23,13 @@ gradle-ktor-plugin = { module = "io.ktor.plugin:plugin", version.ref = "gradle-k
 okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 kotlin-css = { module = "org.jetbrains.kotlin-wrappers:kotlin-css", version.ref = "kotlin_css_version" }
-kotlin-serialization = { module ="org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
 ktor-server-html-builder = { module = "io.ktor:ktor-server-html-builder", version.ref = "ktor" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
-ktor-server-status-pages = { module="io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-network-tls-certificates = { module = "io.ktor:ktor-network-tls-certificates", version.ref = "ktor" }
 ktor-server-locations = { module = "io.ktor:ktor-server-locations", version.ref = "ktor" }
 ktor-server-webjars = { module = "io.ktor:ktor-server-webjars", version.ref = "ktor" }
@@ -34,16 +37,16 @@ ktor-server-compression = { module = "io.ktor:ktor-server-compression", version.
 ktor-server-caching-headers = { module = "io.ktor:ktor-server-caching-headers", version.ref = "ktor" }
 ktor-server-forwarded-header = { module = "io.ktor:ktor-server-forwarded-header", version.ref = "ktor" }
 ktor-server-http-redirect = { module = "io.ktor:ktor-server-http-redirect", version.ref = "ktor" }
-ktor-server-partial-content = { module="io.ktor:ktor-server-partial-content", version.ref = "ktor" }
-ktor-server-content-negotiation = { module="io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-ktor-client-content-negotiation = { module ="io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
-rhino = {module=  "rhino:rhino", version="1.5R4.1" } # todo
-acme4j = { module = "org.shredzone.acme4j:acme4j", version="2.16" } # todo
-ktor-client-okhttp = { module ="io.ktor:ktor-client-okhttp", version="1.3.2-1.4-M2"} # todo
+rhino = { module = "rhino:rhino", version.ref = "rhino" }
+acme4j = { module = "org.shredzone.acme4j:acme4j", version.ref = "acme4j" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "okhttp" }
 ####################################################################################################
 
 ## plugins #########################################################################################
