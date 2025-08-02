@@ -1,0 +1,48 @@
+name: Bump Version Up
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Which version type you want to bump?'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+jobs:
+  bump_version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get current version from TOML
+      id: get_version
+      uses: CumulusDS/get-yaml-paths-action@v2.1.0
+      with:
+        file: gradle/libs.versions.toml
+        appVersionName: android.defaultConfig.versionName
+    - name: Bump version
+      id: semver_bump
+      uses: couplan-pat/actions-semver-bump@v1
+      with:
+        version: ${{ steps.get_version.outputs.appVersionName }}
+        level: ${{ github.event.inputs.bump_type }}
+    - name: Update TOML file with new version
+      uses: joshuanianji/toml-updater@v1.2.1
+      with:
+        file: 'gradle/libs.versions.toml'
+        key: 'android.defaultConfig.versionName'
+        value: '${{ steps.semver_bump.outputs.new_version }}'
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "chore: Bump version to ${{ steps.semver_bump.outputs.new_version }}"
+        commit_user_name: "GitHub Actions Bot"
+        commit_user_email: "actions@github.com"
+        file_pattern: gradle/libs.versions.toml
