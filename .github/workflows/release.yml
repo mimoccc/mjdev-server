@@ -24,7 +24,7 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Build DEB package
-      run: ./gradlew taskBuildDeb
+      run: ./gradlew clean taskBuildDeb
     - name: Extract version from yaml
       id: version
       run: | 
